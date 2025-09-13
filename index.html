@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="calculator bg-white p-6 rounded-2xl shadow-xl max-w-sm w-full mx-4">
+        <input type="text" class="calculator-screen w-full h-20 text-4xl text-right p-4 mb-4 rounded-xl bg-gray-900 text-white font-mono" value="0" disabled />
+        <div class="calculator-keys grid grid-cols-4 gap-3">
+            <button class="bg-gray-200 text-gray-800 rounded-xl p-4 text-2xl font-semibold transition-colors duration-200 hover:bg-gray-300 active:bg-gray-400" onclick="inputNumber('7')">7</button>
+            <button class="bg-gray-200 text-gray-800 rounded-xl p-4 text-2xl font-semibold transition-colors duration-200 hover:bg-gray-300 active:bg-gray-400" onclick="inputNumber('8')">8</button>
+            <button class="bg-gray-200 text-gray-800 rounded-xl p-4 text-2xl font-semibold transition-colors duration-200 hover:bg-gray-300 active:bg-gray-400" onclick="inputNumber('9')">9</button>
+            <button class="operator bg-orange-500 text-white rounded-xl p-4 text-2xl font-semibold transition-colors duration-200 hover:bg-orange-600 active:bg-orange-700" onclick="inputOperator('/')">÷</button>
+
+            <button class="bg-gray-200 text-gray-800 rounded-xl p-4 text-2xl font-semibold transition-colors duration-200 hover:bg-gray-300 active:bg-gray-400" onclick="inputNumber('4')">4</button>
+            <button class="bg-gray-200 text-gray-800 rounded-xl p-4 text-2xl font-semibold transition-colors duration-200 hover:bg-gray-300 active:bg-gray-400" onclick="inputNumber('5')">5</button>
+            <button class="bg-gray-200 text-gray-800 rounded-xl p-4 text-2xl font-semibold transition-colors duration-200 hover:bg-gray-300 active:bg-gray-400" onclick="inputNumber('6')">6</button>
+            <button class="operator bg-orange-500 text-white rounded-xl p-4 text-2xl font-semibold transition-colors duration-200 hover:bg-orange-600 active:bg-orange-700" onclick="inputOperator('*')">×</button>
+
+            <button class="bg-gray-200 text-gray-800 rounded-xl p-4 text-2xl font-semibold transition-colors duration-200 hover:bg-gray-300 active:bg-gray-400" onclick="inputNumber('1')">1</button>
+            <button class="bg-gray-200 text-gray-800 rounded-xl p-4 text-2xl font-semibold transition-colors duration-200 hover:bg-gray-300 active:bg-gray-400" onclick="inputNumber('2')">2</button>
+            <button class="bg-gray-200 text-gray-800 rounded-xl p-4 text-2xl font-semibold transition-colors duration-200 hover:bg-gray-300 active:bg-gray-400" onclick="inputNumber('3')">3</button>
+            <button class="operator bg-orange-500 text-white rounded-xl p-4 text-2xl font-semibold transition-colors duration-200 hover:bg-orange-600 active:bg-orange-700" onclick="inputOperator('-')">−</button>
+
+            <button class="bg-gray-200 text-gray-800 rounded-xl p-4 text-2xl font-semibold transition-colors duration-200 hover:bg-gray-300 active:bg-gray-400" onclick="inputNumber('0')">0</button>
+            <button class="bg-gray-200 text-gray-800 rounded-xl p-4 text-2xl font-semibold transition-colors duration-200 hover:bg-gray-300 active:bg-gray-400" onclick="inputNumber('.')">.</button>
+            <button class="bg-gray-200 text-gray-800 rounded-xl p-4 text-2xl font-semibold transition-colors duration-200 hover:bg-gray-300 active:bg-gray-400" onclick="clearDisplay()">AC</button>
+            <button class="equal-sign bg-blue-600 text-white rounded-xl p-4 text-2xl font-semibold transition-colors duration-200 hover:bg-blue-700 active:bg-blue-800" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        const calculatorScreen = document.querySelector('.calculator-screen');
+        let currentInput = '0';
+        let operator = null;
+        let firstOperand = null;
+        let waitingForSecondOperand = false;
+
+        function updateScreen() {
+            calculatorScreen.value = currentInput;
+        }
+
+        function inputNumber(number) {
+            if (waitingForSecondOperand) {
+                currentInput = number;
+                waitingForSecondOperand = false;
+            } else {
+                currentInput = currentInput === '0' ? number : currentInput + number;
+            }
+            updateScreen();
+        }
+
+        function inputOperator(nextOperator) {
+            const inputValue = parseFloat(currentInput);
+
+            if (operator && waitingForSecondOperand) {
+                operator = nextOperator;
+                return;
+            }
+
+            if (firstOperand === null) {
+                firstOperand = inputValue;
+            } else if (operator) {
+                const result = performCalculation(firstOperand, inputValue, operator);
+                currentInput = String(result);
+                firstOperand = result;
+            }
+
+            waitingForSecondOperand = true;
+            operator = nextOperator;
+            updateScreen();
+        }
+
+        function performCalculation(first, second, op) {
+            switch (op) {
+                case '+':
+                    return first + second;
+                case '-':
+                    return first - second;
+                case '*':
+                    return first * second;
+                case '/':
+                    return first / second;
+                default:
+                    return second;
+            }
+        }
+
+        function calculate() {
+            if (operator === null || waitingForSecondOperand) {
+                return;
+            }
+
+            const inputValue = parseFloat(currentInput);
+            const result = performCalculation(firstOperand, inputValue, operator);
+            
+            currentInput = String(result);
+            firstOperand = null;
+            operator = null;
+            waitingForSecondOperand = true;
+
+            updateScreen();
+        }
+
+        function clearDisplay() {
+            currentInput = '0';
+            operator = null;
+            firstOperand = null;
+            waitingForSecondOperand = false;
+            updateScreen();
+        }
+        
+        // Initial screen update
+        updateScreen();
+    </script>
+</body>
+</html>
